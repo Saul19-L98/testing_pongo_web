@@ -10,5 +10,5 @@ const Dashboard = () => {
   );
 };
 
-//export default Dashboard;
-export default WithPrivateRoute(Dashboard, verifySession);
+export default Dashboard;
+// export default WithPrivateRoute(Dashboard, verifySession);
