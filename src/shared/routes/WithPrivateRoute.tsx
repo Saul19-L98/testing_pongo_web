@@ -1,33 +1,39 @@
 import { useRouter } from "next/navigation";
 import { NextPage } from "next";
-import { verifySession } from "@/request/verify-session";
+import { useEffect, useState, useRef } from "react";
+import Spinner from "../Loading";
 
 // You can extend this interface if you have specific auth props
 interface IWithAuthProps {}
 
 const WithPrivateRoute = <T extends IWithAuthProps>(
-  WrappedComponent: NextPage<T>
+  WrappedComponent: NextPage<T>,
+  verificationFunction: () => Promise<any>
 ) => {
   // This will be the component that WithPrivateRoute returns
   const WithAuth: NextPage<T> = (props: T) => {
     const router = useRouter(); // useRouter hook should be called inside the component
+    const [isloading, setLoading] = useState(true);
+    const isMounted = useRef(false);
 
-    const checkSession = async () => {
-      const isTokenValid = await verifySession();
-      if (!isTokenValid) {
-        router.push("/login"); // Redirect to login if no token
+    useEffect(() => {
+      // Effect for handling the session check
+      const checkSession = async () => {
+        const isTokenValid = await verificationFunction();
+        console.log(isTokenValid.data.isAuth);
+        if (!isTokenValid.data.isAuth) {
+          router.push("/"); // Redirect to login if no token
+        } else {
+          setLoading(false);
+        }
+      };
+      if (!isMounted.current) {
+        checkSession();
+        isMounted.current = true;
       }
-      return <WrappedComponent {...props} />;
-    };
+    }, [router]); // Depend on the router for this effect
 
-    //TODO: fix this
-    // useEffect(() => {
-    //   // Effect for handling the session check
-    // }, [router]); // Depend on the router for this effect
-
-    // Render the WrappedComponent only if there's a token
-    // You can also handle a loading state here if needed
-    return checkSession();
+    return isloading ? <Spinner /> : <WrappedComponent {...props} />;
   };
 
   return WithAuth;

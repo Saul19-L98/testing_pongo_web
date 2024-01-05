@@ -14,12 +14,14 @@ export const verifySession = async () => {
         ["Cookie"]: cookieString,
       },
     });
-    if (cookieString) {
+    if (cookieString.startsWith("Cookie")) {
       return true;
     } else {
       return false;
     }
   } catch (error) {
-    redirect("/");
+    if (error instanceof Error) {
+      redirect("/");
+    }
   }
 };

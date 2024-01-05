@@ -1,7 +1,8 @@
-import { verifySession } from "@/request/verify-session";
+"use client";
+import WithPrivateRoute from "@/shared/routes/WithPrivateRoute";
+import { verifySession } from "./request/authorize";
 
-const page = async () => {
-  await verifySession();
+const Dashboard = () => {
   return (
     <div>
       <h1>Dashboard</h1>
@@ -9,4 +10,5 @@ const page = async () => {
   );
 };
 
-export default page;
+//export default Dashboard;
+export default WithPrivateRoute(Dashboard, verifySession);
